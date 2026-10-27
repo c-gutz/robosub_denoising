@@ -12,6 +12,7 @@ Examples:
     python transcribe.py IMG_0123.MOV
     python transcribe.py IMG_0123.MOV --denoise
     python transcribe.py IMG_0123.MOV --compare
+    python transcribe.py IMG_0123.MOV --compare --dnsmos
     python transcribe.py clips/*.wav --whisper openai/whisper-small.en
 """
 
@@ -27,6 +28,7 @@ from transformers import pipeline
 from denoising import DENOISERS, load_denoiser
 from denoising.audio_io import load_audio
 from denoising.base import resample, to_mono_float
+from denoising.metrics import dnsmos, format_dnsmos
 
 WHISPER_SR = 16_000
 WHISPER_WINDOW_S = 30
@@ -66,6 +68,8 @@ def main() -> None:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--denoise", action="store_true", help="Denoise before transcribing")
     mode.add_argument("--compare", action="store_true", help="Show raw and denoised transcripts side by side")
+    parser.add_argument("--dnsmos", action="store_true", help="Also print DNSMOS speech quality scores")
+    parser.add_argument("--personalized", action="store_true", help="Use personalized DNSMOS (penalizes background talkers)")
     args = parser.parse_args()
 
     transformers.logging.set_verbosity_error()
@@ -79,14 +83,19 @@ def main() -> None:
 
         if denoiser is None or args.compare:
             start = time.perf_counter()
-            text = transcribe(asr, resample(audio, sr, WHISPER_SR), args.language)
+            raw = resample(audio, sr, WHISPER_SR)
+            text = transcribe(asr, raw, args.language)
             print(f"[raw {time.perf_counter() - start:.1f}s] {text}")
+            if args.dnsmos:
+                print(f"    {format_dnsmos(dnsmos(raw, WHISPER_SR, args.personalized))}")
 
         if denoiser is not None:
             start = time.perf_counter()
             clean = denoiser.denoise(audio, sr, out_sr=WHISPER_SR)
             text = transcribe(asr, clean, args.language)
             print(f"[{denoiser.name} {time.perf_counter() - start:.1f}s] {text}")
+            if args.dnsmos:
+                print(f"    {format_dnsmos(dnsmos(clean, WHISPER_SR, args.personalized))}")
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ import soundfile as sf
 
 from denoising import DENOISERS, load_denoiser
 from denoising.audio_io import load_audio
+from denoising.metrics import dnsmos, format_dnsmos
 
 
 def main() -> None:
@@ -25,6 +26,8 @@ def main() -> None:
     parser.add_argument("-o", "--out-dir", type=Path, default=Path("denoised"))
     parser.add_argument("-m", "--model", default="deepfilternet3", choices=sorted(DENOISERS))
     parser.add_argument("--out-sr", type=int, default=None, help="Output sample rate (default: same as input)")
+    parser.add_argument("--dnsmos", action="store_true", help="Print DNSMOS scores before and after denoising")
+    parser.add_argument("--personalized", action="store_true", help="Use personalized DNSMOS (penalizes background talkers)")
     args = parser.parse_args()
 
     denoiser = load_denoiser(args.model)
@@ -42,6 +45,9 @@ def main() -> None:
         sf.write(out_path, enhanced, out_sr)
         rtf = elapsed / (len(audio) / sr)
         print(f"{path} -> {out_path}  ({elapsed:.2f}s, RTF {rtf:.3f})")
+        if args.dnsmos:
+            print(f"    before: {format_dnsmos(dnsmos(audio, sr, args.personalized))}")
+            print(f"    after:  {format_dnsmos(dnsmos(enhanced, out_sr, args.personalized))}")
 
 
 if __name__ == "__main__":

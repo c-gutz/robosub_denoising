@@ -13,8 +13,13 @@ dependencies:
       - torchaudio>=2.6,<2.9
       - numpy<2
       - deepfilternet==0.5.6
+      - clearvoice  # ClearerVoice-Studio: FRCRN, MossFormer2, MossFormerGAN
       - soundfile
       - transformers
       - torchmetrics[audio]   # pulls in onnxruntime, librosa, requests for DNSMOS
       - jiwer
 
+      # DNSMOS: speechmos bundles Microsoft's ONNX models but doesn't declare its deps.
+      - speechmos
+      - librosa
+      - onnxruntime

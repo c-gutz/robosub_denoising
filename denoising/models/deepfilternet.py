@@ -7,7 +7,7 @@ to the DeepFilterNet cache directory (~/.cache/DeepFilterNet on Linux).
 import numpy as np
 import torch
 
-from .base import Denoiser
+from ..base import Denoiser
 
 
 class DeepFilterNetDenoiser(Denoiser):
