@@ -26,4 +26,5 @@ def load_audio(path: Path) -> tuple[np.ndarray, int]:
         ["ffmpeg", "-v", "error", "-i", str(path), "-map", "a:0", "-ac", "1", "-f", "f32le", "-"],
         capture_output=True, check=True,
     )
-    return np.frombuffer(decoded.stdout, dtype=np.float32), sr
+    # frombuffer returns a read-only view; copy so callers (and torch) can write to it.
+    return np.frombuffer(decoded.stdout, dtype=np.float32).copy(), sr

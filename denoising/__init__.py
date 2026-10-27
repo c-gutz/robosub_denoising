@@ -3,7 +3,9 @@ from .base import Denoiser
 # Backend modules import their model libraries lazily, so listing them here
 # doesn't require every library to be installed.
 DENOISERS = {
-    "deepfilternet3": "denoising.deepfilternet:DeepFilterNetDenoiser",
+    "deepfilternet3": "denoising.models.deepfilternet:DeepFilterNetDenoiser",
+    "frcrn_se_16k": "denoising.models.frcrn:FRCRNDenoiser",
+    "mossformer2_se_48k": "denoising.models.mossformer2:MossFormer2Denoiser",
 }
 
 
