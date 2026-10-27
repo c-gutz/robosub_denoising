@@ -50,6 +50,48 @@ denoiser = load_denoiser("deepfilternet3")
 clean = denoiser.denoise(audio, sr=48000, out_sr=16000)  # any input sr; resampled internally
 ```
 
+## Benchmark
+
+Compares the raw recording ("before") against each denoiser ("after") on the same clips,
+scoring DNSMOS, Whisper word error rate (WER) and speed.
+
+```bash
+python benchmark.py clips/*.MOV                                  # raw vs every denoiser
+python benchmark.py clips/*.MOV -m deepfilternet3 frcrn_se_16k   # only these
+python benchmark.py clips/*.MOV --csv results.csv                # per-clip CSV with transcripts
+```
+
+To get WER, put a hand-typed transcript of what was actually said next to each clip,
+with the same name and a `.txt` extension:
+
+```
+clips/
+  dining_hall.MOV
+  dining_hall.txt    # "hey robot, go to the red gate ..."
+  beach.MOV          # no transcript: DNSMOS and RTF only
+```
+
+Casing and punctuation don't matter; transcripts and Whisper output both go through Whisper's
+English text normalizer before scoring.
+
+Output columns, one row per clip × system (`raw` = no denoising):
+
+| Column | Meaning | Better |
+|---|---|---|
+| `SIG` / `BAK` / `OVRL` | DNSMOS speech quality / background noise / overall (1-5) | higher |
+| `WER` | Whisper word error rate vs the `.txt` transcript (`-` if none) | lower |
+| `RTF` | denoising time ÷ clip length (`< 1` is faster than real time) | lower |
+
+The summary at the end averages DNSMOS and RTF over all clips and pools WER across the clips
+that have transcripts. WER is the number that matters for the robot; DNSMOS only tells you how
+the audio sounds.
+
+Tips for recordings:
+- Record the same kind of commands the robot will hear, in each environment you care about.
+- Several short clips (10-60 s) give a steadier picture than one long one; a WER difference on
+  a handful of words is mostly noise.
+- RTF on the first clip includes model warm-up, so it reads high.
+
 ## Denoising models
 
 | Name | Native SR | Status |
@@ -60,5 +102,15 @@ clean = denoiser.denoise(audio, sr=48000, out_sr=16000)  # any input sr; resampl
 | MossFormerGAN_SE_16K, SepFormer DNS4 | — | todo |
 
 Pick a denoiser with `-m`, e.g. `python transcribe.py IMG_0123.MOV --compare -m frcrn_se_16k`.
+
+## Layout
+
+```
+transcribe.py      Whisper transcription, optionally denoised (--compare for before/after)
+denoise_file.py    write denoised .wav files
+benchmark.py       DNSMOS + WER + speed across denoisers
+denoising/         Denoiser interface, model backends, audio loading
+evaluation/        DNSMOS and WER scoring used by the benchmark
+```
 
 To add a model, subclass `denoising.base.Denoiser` (set `name`, `native_sr`, implement `_enhance`) and register it in `denoising/__init__.py`.

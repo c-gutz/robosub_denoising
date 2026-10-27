@@ -5,7 +5,7 @@ transcript sits next to the clip (beach.MOV -> beach.txt), also reports
 Whisper's word error rate against it.
 
 Examples:
-    python benchmark.py clips/*.MOV
+    python benchmark.py clips/*.MOV                     # raw vs every denoiser
     python benchmark.py clips/* -m deepfilternet3 --csv results.csv
 """
 
@@ -36,7 +36,8 @@ def format_row(row: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("inputs", nargs="+", type=Path, help="Audio or video files")
-    parser.add_argument("-m", "--models", nargs="+", default=["deepfilternet3"], choices=sorted(DENOISERS))
+    parser.add_argument("-m", "--models", nargs="+", default=sorted(DENOISERS), choices=sorted(DENOISERS),
+                        help="Denoisers to compare against raw (default: all)")
     parser.add_argument("--whisper", default="openai/whisper-small", help="Hugging Face Whisper checkpoint")
     parser.add_argument("--language", default="english", help="Spoken language (ignored by .en checkpoints)")
     parser.add_argument("--csv", type=Path, help="Also write per-clip results to this CSV")

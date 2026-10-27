@@ -1,0 +1,21 @@
+clip,system,p808,sig,bak,ovrl,wer,substitutions,deletions,insertions,rtf,text,reference
+audio_3.MOV,raw,3.4159248215811595,3.052850637496682,1.9085577495976964,1.8670517633776789,0.017857142857142856,1,0,0,0.0006673526312959821,"The submarine dove to 12 meters and turned left toward the orange buoy. Please fire both torpedoes at the red target, then surface near the gate. Battery voltage is 14.8 and the depth sensor reads 3.5. She sells fresh fish at the busy market by the Windy Beach. Quick brown foxes jumped over 37 lazy dogs.","The submarine dove to twelve meters and turned left toward the orange buoy. 
+Please fire both torpedoes at the red target, then surface near the gate.
+Battery voltage is fourteen point eight, and the depth sensor reads three point five.
+She sells fresh fish at the busy market by the windy beach.
+Quick brown foxes jump over thirty-seven lazy dogs."
+audio_3.MOV,deepfilternet3,4.140772478921073,3.3484699091659786,4.0938249963651145,3.102991477888673,0.017857142857142856,1,0,0,0.023945631576996102,"The submarine dove to 12 meters and turned left toward the orange buoy. Please fire both torpedoes at the red target, then surface near the gate. Battery voltage is 14.8 and the depth sensor reads 3.5. She sells fresh fish at the busy market by the windy beach. Quick brown foxes jumped over 37 lazy dogs.","The submarine dove to twelve meters and turned left toward the orange buoy. 
+Please fire both torpedoes at the red target, then surface near the gate.
+Battery voltage is fourteen point eight, and the depth sensor reads three point five.
+She sells fresh fish at the busy market by the windy beach.
+Quick brown foxes jump over thirty-seven lazy dogs."
+audio_3.MOV,frcrn_se_16k,4.1799717630658835,3.5549760211262216,4.1426282500837415,3.3113223678791313,0.10714285714285714,6,0,0,0.9000458859789529,The submarine doves at 12 meters in turn left toward the orange buoy. Flees fire both torpedoes at the red target and surface near the gate. Battery voltage is 14.8 and the depth sensor reads 3.5. She sells fresh fish at the busy market by the windy beach. Quick brown foxes jump over 37 lazy dogs.,"The submarine dove to twelve meters and turned left toward the orange buoy. 
+Please fire both torpedoes at the red target, then surface near the gate.
+Battery voltage is fourteen point eight, and the depth sensor reads three point five.
+She sells fresh fish at the busy market by the windy beach.
+Quick brown foxes jump over thirty-seven lazy dogs."
+audio_3.MOV,mossformer2_se_48k,4.150811740330288,3.473066912989947,4.174241532561337,3.24703379389921,0.017857142857142856,1,0,0,0.49447766315731173,"The submarine dove to 12 meters and turned left toward the orange buoy. Please fire both torpedoes at the red target, then surface near the gate. Battery voltage is 14.8 and the depth sensor reads 3.5. She sells fresh fish at the busy market by the windy beach. Quick brown foxes jumped over 37 lazy dogs.","The submarine dove to twelve meters and turned left toward the orange buoy. 
+Please fire both torpedoes at the red target, then surface near the gate.
+Battery voltage is fourteen point eight, and the depth sensor reads three point five.
+She sells fresh fish at the busy market by the windy beach.
+Quick brown foxes jump over thirty-seven lazy dogs."
