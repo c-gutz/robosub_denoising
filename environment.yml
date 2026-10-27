@@ -15,3 +15,6 @@ dependencies:
       - deepfilternet==0.5.6
       - soundfile
       - transformers
+      - torchmetrics[audio]   # pulls in onnxruntime, librosa, requests for DNSMOS
+      - jiwer
+
