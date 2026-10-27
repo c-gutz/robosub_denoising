@@ -4,3 +4,14 @@ channels:
   - conda-forge
 dependencies:
   - python=3.10
+  - conda-forge::ffmpeg
+  - pip
+  - pip:
+      # transformers needs torch>=2.6; deepfilternet 0.5.6 imports torchaudio.backend,
+      # which torchaudio 2.9 removed.
+      - torch>=2.6,<2.9
+      - torchaudio>=2.6,<2.9
+      - numpy<2
+      - deepfilternet==0.5.6
+      - soundfile
+      - transformers
