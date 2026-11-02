@@ -50,10 +50,26 @@ denoiser = load_denoiser("deepfilternet3")
 clean = denoiser.denoise(audio, sr=48000, out_sr=16000)  # any input sr; resampled internally
 ```
 
+## Listen to the results
+
+Writes the raw audio and each denoiser's output as `.wav` files you can play, plus Whisper's
+transcript of each (with WER if a `.txt` transcript sits next to the clip):
+
+```bash
+python listen.py recordings/*/*.MOV                     # every denoiser
+python listen.py IMG_0123.MOV -m deepfilternet3         # just one
+```
+
+```
+outputs/audio_1/
+  raw.wav  deepfilternet3.wav  frcrn_se_16k.wav  mossformer2_se_48k.wav
+  transcripts.txt
+```
+
 ## Benchmark
 
 Compares the raw recording ("before") against each denoiser ("after") on the same clips,
-scoring DNSMOS, Whisper word error rate (WER) and speed.
+scoring DNSMOS, Squim, Whisper word error rate (WER) and speed.
 
 ```bash
 python benchmark.py clips/*.MOV                                  # raw vs every denoiser
@@ -79,10 +95,12 @@ Output columns, one row per clip × system (`raw` = no denoising):
 | Column | Meaning | Better |
 |---|---|---|
 | `SIG` / `BAK` / `OVRL` | DNSMOS speech quality / background noise / overall (1-5) | higher |
+| `SNR` | Squim's estimated signal-to-noise ratio in dB (SI-SDR; 0 = speech and noise equally loud) | higher |
+| `STOI` | Squim's estimated speech intelligibility (0-1) | higher |
 | `WER` | Whisper word error rate vs the `.txt` transcript (`-` if none) | lower |
 | `RTF` | denoising time ÷ clip length (`< 1` is faster than real time) | lower |
 
-The summary at the end averages DNSMOS and RTF over all clips and pools WER across the clips
+The summary at the end averages DNSMOS, Squim and RTF over all clips and pools WER across the clips
 that have transcripts. WER is the number that matters for the robot; DNSMOS only tells you how
 the audio sounds.
 
@@ -91,6 +109,33 @@ Tips for recordings:
 - Several short clips (10-60 s) give a steadier picture than one long one; a WER difference on
   a handful of words is mostly noise.
 - RTF on the first clip includes model warm-up, so it reads high.
+
+[TorchAudio-Squim](https://pytorch.org/audio/stable/tutorials/squim_tutorial.html) estimates SNR,
+STOI and PESQ (in the CSV) from the noisy clip alone, without a clean copy. `snr_sweep.py`
+checks how accurate that estimate is.
+
+## SNR sweep
+
+Real recordings never tell you their true SNR. `snr_sweep.py` makes test clips where you do
+know it: it mixes a clean recording (e.g. you reading commands in a quiet room) with noise-only
+recordings (dining hall, wind, crowd) at exact SNRs, then reports Squim's estimated SNR next
+to the true one, plus Whisper's WER for raw and each denoiser.
+
+```bash
+python snr_sweep.py quiet_room.wav --noise dining_hall.wav wind.wav           # 20 down to -15 dB
+python snr_sweep.py quiet_room.wav --noise babble.wav --snrs 0 -5 -10 -m frcrn_se_16k
+python snr_sweep.py quiet_room.wav --noise babble.wav --save-dir mixtures     # also write the mixes
+```
+
+Put a transcript in `quiet_room.txt` for true WER. Without one, Whisper's transcript of the clean
+clip is the reference, so WER then shows how much the noise changes the output.
+
+How loud to make the noise: SNR is a ratio, so the clip's overall volume doesn't matter (mixes
+are peak-normalized). As a rough guide, +20 dB is a quiet room, +10 to +5 dB an office or a
+calm cafe, about 0 dB a busy dining hall (noise as loud as the speech), and -5 to -10 dB shouting
+over a crowd or wind straight on the mic. Your phone recordings measured around -10 dB. The
+default sweep (+20 to -15 dB in 5-10 dB steps) covers all of this; the region to study is
++5 to -10 dB, where Whisper starts to fail and denoising starts to matter.
 
 ## Denoising models
 
@@ -108,9 +153,11 @@ Pick a denoiser with `-m`, e.g. `python transcribe.py IMG_0123.MOV --compare -m 
 ```
 transcribe.py      Whisper transcription, optionally denoised (--compare for before/after)
 denoise_file.py    write denoised .wav files
-benchmark.py       DNSMOS + WER + speed across denoisers
+listen.py          denoised .wav files + before/after transcripts for every denoiser
+benchmark.py       DNSMOS + Squim + WER + speed across denoisers
+snr_sweep.py       mix clean speech + noise at known SNRs; check Squim and WER vs SNR
 denoising/         Denoiser interface, model backends, audio loading
-evaluation/        DNSMOS and WER scoring used by the benchmark
+evaluation/        DNSMOS, Squim and WER scoring used by the benchmark
 ```
 
 To add a model, subclass `denoising.base.Denoiser` (set `name`, `native_sr`, implement `_enhance`) and register it in `denoising/__init__.py`.
