@@ -1,4 +1,4 @@
-"""Benchmark denoisers on recordings: DNSMOS quality, Whisper WER and speed.
+"""Benchmark denoisers on recordings: DNSMOS and Squim quality, Whisper WER and speed.
 
 For each clip, scores the raw audio plus each --models denoiser. If a
 transcript sits next to the clip (beach.MOV -> beach.txt), also reports
@@ -20,11 +20,12 @@ from denoising import DENOISERS, load_denoiser
 from denoising.audio_io import load_audio
 from denoising.base import resample, to_mono_float
 from evaluation.dnsmos import dnsmos
+from evaluation.squim import squim
 from evaluation.wer import wer
 from transcribe import WHISPER_SR, load_whisper, transcribe
 
-COLUMNS = ["sig", "bak", "ovrl", "wer", "rtf"]
-CSV_FIELDS = ["clip", "system", "p808", "sig", "bak", "ovrl", "wer",
+COLUMNS = ["sig", "bak", "ovrl", "snr", "stoi", "wer", "rtf"]
+CSV_FIELDS = ["clip", "system", "p808", "sig", "bak", "ovrl", "snr", "stoi", "pesq", "wer",
               "substitutions", "deletions", "insertions", "rtf", "text", "reference"]
 
 
@@ -67,17 +68,17 @@ def main() -> None:
 
             text = transcribe(asr, audio_16k, args.language)
             row = {"clip": path.name, "system": name, "rtf": rtf, "text": text,
-                   "reference": reference, **dnsmos(audio_16k, WHISPER_SR)}
+                   "reference": reference, **dnsmos(audio_16k, WHISPER_SR), **squim(audio_16k, WHISPER_SR)}
             if reference is not None:
                 row |= wer(reference, text, normalize=normalize)
             rows.append(row)
             print(format_row(row))
 
-    print("\nSummary: mean DNSMOS and RTF; WER pooled over clips with transcripts")
+    print("\nSummary: mean DNSMOS, Squim and RTF; WER pooled over clips with transcripts")
     for name in systems:
         system_rows = [r for r in rows if r["system"] == name]
         summary = {"clip": "ALL", "system": name}
-        for c in ("sig", "bak", "ovrl", "rtf"):
+        for c in ("sig", "bak", "ovrl", "snr", "stoi", "rtf"):
             summary[c] = sum(r[c] for r in system_rows) / len(system_rows)
         scored = [r for r in system_rows if r["reference"] is not None]
         if scored:
