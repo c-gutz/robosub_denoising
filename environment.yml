@@ -18,6 +18,7 @@ dependencies:
       - transformers
       - torchmetrics[audio]   # pulls in onnxruntime, librosa, requests for DNSMOS
       - jiwer
+      - sounddevice   # laptop mic input for live.py (bundles PortAudio on macOS)
 
       # DNSMOS: speechmos bundles Microsoft's ONNX models but doesn't declare its deps.
       - speechmos
