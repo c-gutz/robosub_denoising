@@ -1,0 +1,11 @@
+== recordings/recording_2/audio_2.MOV
+
+[reference] The submarine dove to twelve meters and turned left toward the orange buoy. Please fire both torpedoes at the red target, then surface near the gate. Battery voltage is fourteen point eight, and the depth sensor reads three point five. She sells fresh fish at the busy market by the windy beach. Quick brown foxes jump over thirty-seven lazy dogs.
+
+[raw (WER 57.1%)] Please fire both torpedoes at the red target and service near the gate. Battery voltage is 14.8 and the depth is agreed to 3.5. She sounds fresh but she's not yet by the windy beach.
+
+[deepfilternet3 (WER 62.5%)] up to 12 meters of turn light for the orange buoy. Please view our boat torpedoes at the red target and surface low to eight. The boundary voltage is 1448. The depth is three point five. She says fresh fish is in the middle of the beach.
+
+[frcrn_se_16k (WER 35.7%)] The 17, both to 12 meters, and turn left for the orange buoy. Please fire both torpedoes at the red target, then service the little gate. Battery voltage is 14.8, and the deck consists of rates 3.5. She sells fresh fish at the busy market by the Woogie Beach.
+
+[mossformer2_se_48k (WER 55.4%)] The summary in both the 12 meters of turn left for Rollings-Gooley. Please fire both word eaters at the red target and service mode the gate. Battery voltage is 1448 and the deck tensor reads 3.5. She sells fresh crystal gizzie not yet by the windy beach.
