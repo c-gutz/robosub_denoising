@@ -66,6 +66,21 @@ outputs/audio_1/
   transcripts.txt
 ```
 
+## Live (laptop mic)
+
+Push-to-talk: press Enter, say something, press Enter again. Prints Squim's estimated SNR of the
+take and Whisper's transcript raw and after each denoiser (with time taken), and saves the take
+to `takes/` so you can listen to it.
+
+```bash
+python live.py                                  # raw vs frcrn_se_16k
+python live.py -m deepfilternet3 frcrn_se_16k   # compare several denoisers
+python live.py --list-devices                   # then --device <index> for another mic
+```
+
+The first run asks for microphone access for your terminal app (System Settings -> Privacy &
+Security -> Microphone). Try it in a quiet room, then again with a fan or music on nearby.
+
 ## Benchmark
 
 Compares the raw recording ("before") against each denoiser ("after") on the same clips,
@@ -154,6 +169,7 @@ Pick a denoiser with `-m`, e.g. `python transcribe.py IMG_0123.MOV --compare -m 
 transcribe.py      Whisper transcription, optionally denoised (--compare for before/after)
 denoise_file.py    write denoised .wav files
 listen.py          denoised .wav files + before/after transcripts for every denoiser
+live.py            push-to-talk from the laptop mic: raw vs denoised transcripts
 benchmark.py       DNSMOS + Squim + WER + speed across denoisers
 snr_sweep.py       mix clean speech + noise at known SNRs; check Squim and WER vs SNR
 denoising/         Denoiser interface, model backends, audio loading
