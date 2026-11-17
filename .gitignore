@@ -3,3 +3,5 @@ denoised/
 .DS_Store
 .DS_Store
 takes/
+thruster_sim/
+thruster_noise/

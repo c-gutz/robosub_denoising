@@ -28,7 +28,7 @@ import soundfile as sf
 import transformers
 
 from denoising import DENOISERS, load_denoiser
-from denoising.audio_io import load_audio
+from denoising.audio_io import load_audio, mix_at_snr
 from denoising.base import resample, to_mono_float
 from evaluation.squim import squim
 from evaluation.wer import wer
@@ -36,22 +36,6 @@ from transcribe import WHISPER_SR, load_whisper, transcribe
 
 DEFAULT_SNRS = [20, 10, 5, 0, -5, -10, -15]
 CSV_FIELDS = ["noise", "true_snr", "system", "snr", "stoi", "pesq", "wer", "text"]
-
-
-def mix_at_snr(speech: np.ndarray, noise: np.ndarray, snr_db: float) -> np.ndarray:
-    """Add ``noise`` to ``speech`` scaled to the given SNR, then peak-normalize.
-
-    Noise shorter than the speech is looped; longer noise is trimmed. Energy is
-    measured over the whole clip, pauses included, which matches what Squim's
-    SI-SDR estimate measures.
-    """
-    noise = np.resize(noise, len(speech))  # np.resize repeats the array to fill
-    speech_power = np.mean(speech**2)
-    noise_power = np.mean(noise**2)
-    scale = np.sqrt(speech_power / (noise_power * 10 ** (snr_db / 10)))
-    mixture = speech + scale * noise
-    # Scaling speech and noise together leaves the SNR unchanged.
-    return (mixture * 0.9 / np.max(np.abs(mixture))).astype(np.float32)
 
 
 def load_mono(path: Path, sr: int | None = None) -> tuple[np.ndarray, int]:

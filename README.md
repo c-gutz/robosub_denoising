@@ -177,6 +177,24 @@ over a crowd or wind straight on the mic. Your phone recordings measured around 
 default sweep (+20 to -15 dB in 5-10 dB steps) covers all of this; the region to study is
 +5 to -10 dB, where Whisper starts to fail and denoising starts to matter.
 
+## Simulated thruster noise
+
+There are no recordings of our thrusters yet, so `simulate_thrusters.py` synthesizes thruster
+noise as heard by a mic above the water: blade tones, motor whine and prop wash from a T200-style
+thruster (3 blades, 7 pole pairs), several thrusters ramping up and down, bubbles and splashes,
+then hull resonances and pool reverb. Each clip draws new random settings. `--condition air` is
+thrusters spinning on a bench out of the water instead of submerged.
+
+```bash
+python simulate_thrusters.py recordings/recording_4/audio_4.MOV            # thruster_sim/audio_4_thrusters_+0dB.wav
+python simulate_thrusters.py recordings/*/*.MOV --snr 5 0 -5 --video       # several SNRs, plus .MOVs
+python simulate_thrusters.py --noise-only 20 --duration 30 -o thruster_noise
+python snr_sweep.py quiet_room.wav --noise thruster_noise/*.wav
+```
+
+It's a stand-in: listen to it, and replace it with real recordings of the thrusters running
+(nobody talking) as soon as there are some.
+
 ## Denoising models
 
 | Name | Native SR | Status |
@@ -198,6 +216,7 @@ live.py            push-to-talk from the laptop mic: raw vs denoised transcripts
 live_stream.py     real-time FRCRN on the laptop mic, played back to headphones
 benchmark.py       DNSMOS + Squim + WER + speed across denoisers
 snr_sweep.py       mix clean speech + noise at known SNRs; check Squim and WER vs SNR
+simulate_thrusters.py  synthesize thruster noise; mix it into recordings or write noise-only clips
 denoising/         Denoiser interface, model backends, audio loading
 evaluation/        DNSMOS, Squim and WER scoring used by the benchmark
 ```
