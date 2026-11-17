@@ -81,6 +81,31 @@ python live.py --list-devices                   # then --device <index> for anot
 The first run asks for microphone access for your terminal app (System Settings -> Privacy &
 Security -> Microphone). Try it in a quiet room, then again with a fan or music on nearby.
 
+### Real-time FRCRN
+
+`live_stream.py` denoises the mic continuously with FRCRN and plays it to your headphones about
+1.8 s behind. Press Enter to switch between denoised and raw (they're lined up, so you can A/B
+them); `q` + Enter quits and saves both to `takes/stream_NNN_*.wav`. Use headphones, since
+speakers feed back into the mic. `--spectrogram` opens a window with the last 6 s of raw (top) and
+denoised (bottom) audio, lined up and on the same dB scale, so removed noise shows as a darker
+background; Enter/space in the window switches what you hear, q or closing it quits.
+
+```bash
+python live_stream.py                                   # listen live
+python live_stream.py --spectrogram                     # + live raw vs denoised spectrograms
+python live_stream.py --no-monitor --transcribe         # record + denoise, transcripts on quit
+python live_stream.py --file recordings/recording_4/audio_4.MOV --transcribe   # no mic
+python live_stream.py --checkpoint path/to/finetuned    # fine-tuned FRCRN weights
+```
+
+FRCRN works on whole clips, so the stream is cut into overlapping windows: 0.4 s of past
+context, a 0.8 s block that's kept, and 0.16 s of lookahead, crossfaded at the seams
+(`denoising/streaming.py`). On an M5 CPU one window takes ~0.75x real time, so there isn't much
+room: a larger `--context` helps quality a little (the windowed output differs from
+whole-clip FRCRN by 7-23 dB on recordings 2-4, and WER was about the same) but needs a larger
+`--block`, which adds delay. The status line warns if the model falls behind. `--file` streams a
+recording through the same windowing and prints the real-time factor.
+
 ## Benchmark
 
 Compares the raw recording ("before") against each denoiser ("after") on the same clips,
@@ -170,6 +195,7 @@ transcribe.py      Whisper transcription, optionally denoised (--compare for bef
 denoise_file.py    write denoised .wav files
 listen.py          denoised .wav files + before/after transcripts for every denoiser
 live.py            push-to-talk from the laptop mic: raw vs denoised transcripts
+live_stream.py     real-time FRCRN on the laptop mic, played back to headphones
 benchmark.py       DNSMOS + Squim + WER + speed across denoisers
 snr_sweep.py       mix clean speech + noise at known SNRs; check Squim and WER vs SNR
 denoising/         Denoiser interface, model backends, audio loading

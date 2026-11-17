@@ -19,6 +19,7 @@ dependencies:
       - torchmetrics[audio]   # pulls in onnxruntime, librosa, requests for DNSMOS
       - jiwer
       - sounddevice   # laptop mic input for live.py (bundles PortAudio on macOS)
+      - matplotlib    # live spectrogram window in live_stream.py
 
       # DNSMOS: speechmos bundles Microsoft's ONNX models but doesn't declare its deps.
       - speechmos
