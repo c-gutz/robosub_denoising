@@ -252,16 +252,20 @@ def stream_mic(streamer: StreamingFRCRN, args) -> tuple[np.ndarray, np.ndarray]:
         state["denoised"] = not state["denoised"]
 
     def read_terminal() -> None:
+        # sys.stdin.readline, not input(): with the spectrogram open, input() runs
+        # matplotlib's macOS GUI hook on this thread, and macOS kills the process
+        # (SIGTRAP) for touching the GUI off the main thread.
         try:
             while not quit_event.is_set():
-                if input().strip().lower() == "q":
+                line = sys.stdin.readline()
+                if not line or line.strip().lower() == "q":  # "" means stdin closed
                     break
                 toggle()
-        except (EOFError, OSError):
+        except OSError:
             pass
         quit_event.set()
 
-    # Not joined: it may still be waiting on input() when the window is closed.
+    # Not joined: it may still be waiting for a line when the window is closed.
     threading.Thread(target=read_terminal, daemon=True).start()
     with stream:
         try:
